@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # verify.sh — one cycle of METHOD.md step 2c.
 #
-# Ships the current state of mxgpu-mini/repo/qemu-device/ to the dev VM,
-# rebuilds QEMU with the device wired in, and verifies the device loads.
-# Uses git ls-files in the inner repo (mxgpu-mini/repo/ is its own git
-# repo, destined for public release) so untracked junk doesn't leak.
-# No commit required — picks up working-tree state.
+# Ships the current state of qemu-device/ to the dev VM, rebuilds QEMU
+# with the device wired in, and verifies the device loads. Uses
+# git ls-files so untracked junk doesn't leak. No commit required —
+# picks up working-tree state.
 #
 # Env overrides: MXGPU_VM (default mxgpu-dev), MXGPU_ZONE (default
 # asia-northeast1-b).
@@ -16,8 +15,8 @@ VM="${MXGPU_VM:-mxgpu-dev}"
 ZONE="${MXGPU_ZONE:-asia-northeast1-b}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INNER_REPO="$(cd "$SCRIPT_DIR/../repo" && pwd)"
-cd "$INNER_REPO"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
 
 # --- 1. Build tarball of qemu-device/ (tracked + untracked-not-ignored).
 TARBALL=$(mktemp -t mxgpu-push.XXXXXX).tar
@@ -25,7 +24,7 @@ trap 'rm -f "$TARBALL"' EXIT
 
 FILES=$(git ls-files -co --exclude-standard -- qemu-device)
 if [[ -z "$FILES" ]]; then
-  echo "verify.sh: no files under repo/qemu-device/ (gitignored or missing?)" >&2
+  echo "verify.sh: no files under qemu-device/ (gitignored or missing?)" >&2
   exit 1
 fi
 echo "$FILES" | tar -cf "$TARBALL" --files-from=-

@@ -4,10 +4,11 @@ The two-actor loop. Claude writes the code; you transcribe it and
 interrogate every line you couldn't have written yourself. Work proceeds
 step by step, not exercise by exercise — one small chunk at a time.
 
-**Layout assumption:** `EXERCISES.md` sits in `noetics/mxgpu-mini/`
-alongside `.solutions/` (the reference-implementation dir you transcribe
-from). Code lives in `repo/`. Paths in exercises are relative to `repo/`
-unless noted.
+**Layout assumption:** `EXERCISES.md`, `METHOD.md`, and `.solutions/`
+(the reference-implementation dir you transcribe from) all live in this
+repo. Your transcribed code lives alongside them in `qemu-device/` and
+`pf-driver/`. Paths in exercises are relative to the repo root unless
+noted.
 
 ## Per exercise
 
@@ -28,8 +29,9 @@ unless noted.
       idea, not a textbook chapter.
 
    b. **You transcribe and interrogate** in one pass. Type the chunk by
-      hand into `repo/`, and stop on any macro, cast, field order, or
-      call you couldn't have written yourself — ask before moving on.
+      hand into the matching source dir (`qemu-device/` or `pf-driver/`),
+      and stop on any macro, cast, field order, or call you couldn't have
+      written yourself — ask before moving on.
       Specific questions ("why this, not that?") force a real model;
       vague questions ("what is this?") get vague answers.
 

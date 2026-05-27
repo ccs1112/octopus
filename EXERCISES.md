@@ -1,6 +1,6 @@
 # mxgpu-mini exercises
 
-Private learning log for the public artifact in `repo/`.
+Learning log for the device and drivers built in this repo.
 
 **Method:** see `METHOD.md` for the transcription-interrogation loop that
 governs how exercises are worked. Read it before starting.
