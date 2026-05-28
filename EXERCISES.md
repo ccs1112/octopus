@@ -258,10 +258,13 @@ their first 4 dwords, writes a pattern to BAR2, and verifies on a re-run.
 
 **Predict:**
 - What permission/cap is needed to open the `resource*` sysfs files? Why?
+  - _Prediction:_ reading and writing
 - If you `mmap` with `MAP_SHARED` and write a 4-byte value to BAR0 offset 0,
   trace the path from store instruction to your QEMU `.write` handler.
+  - _Prediction:_ idk
 - What happens if you do a 1-byte write to BAR0 where `.min_access_size = 4`?
   Where does the size mismatch get handled?
+  - _Prediction:_ doorbell
 
 **Build:**
 - Plain C, compile inside the guest. `pread`/`pwrite` on `resource0` /

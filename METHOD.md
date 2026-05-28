@@ -18,8 +18,9 @@ noted.
 
 2. **Step-loop** until the exercise's file is complete:
 
-   a. **Claude appends the next chunk** to `.solutions/<track>/<file>` —
-      one construct, not the whole exercise. A struct, a function, a
+   a. **Claude appends the next chunk** to `.solutions/<track>/<file>`
+      and prints it in the chat so you transcribe from there — one
+      construct, not the whole exercise. A struct, a function, a
       capability registration. Just enough to introduce one or two new
       ideas at a time. `.solutions/` is always exactly the floor for the
       step you are on — never further. Alongside the chunk, Claude gives
