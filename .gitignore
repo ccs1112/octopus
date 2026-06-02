@@ -1,3 +1,8 @@
+# Local working notes — not part of the published project.
+/METHOD.md
+/EXERCISES.md
+/.solutions/
+
 # Kernel module build artifacts
 *.o
 *.ko

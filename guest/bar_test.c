@@ -1,5 +1,5 @@
 /*
- * Guest-side exerciser for the mxgpu-mini BARs
+ * Guest-side exerciser for the octopus BARs
  *
  * Opens the device's BAR resource files via sysfs, mmaps them, reads
  * BAR0's registers, and round-trips a pattern through BAR2's RAM.
