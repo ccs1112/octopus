@@ -1,5 +1,7 @@
 # Octopus
 
+> An end-to-end virtual GPU.
+
 An SR-IOV GPU virtualization stack: a synthetic PCIe device for QEMU and the
 Linux PF/VF drivers that drive it. Implements the same surface as AMD's
 MxGPU/GIM stack — PCIe, SR-IOV, BAR partitioning, world-switch scheduling,
