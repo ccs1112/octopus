@@ -70,6 +70,53 @@ static void bar_write32(volatile void *base, size_t off, uint32_t val) {
   *(volatile uint32_t *)((volatile uint8_t *)base + off) = val;
 }
 
+/*
+ * Round-trip a known pattern through BAR2 and report whether it survived
+ * from a previous run.
+ *
+ * BAR2 is host-RAM-backed scratch: QEMU built it with
+ * memory_region_init_ram(), so a store here lands in an ordinary host page
+ * that lives as long as the QEMU process. We proved this by reading the
+ * four `dwords` first. If they already hold the pattern, some earlier
+ * invocation wrote them and the RAM outlived our exit. Only then do we
+ * write or rewrite the pattern so that the next run sees it. Then we read
+ * it straight back to confirm the store took.
+ */
+static void roundtrip_bar2(volatile void *bar2) {
+
+  // Distinctive sentinels
+  static const uint32_t pattern[4] = {
+      0xa5a5a5a5,
+      0x5a5a5a5a,
+      0xdeadbeef,
+      0xcafef00d,
+  };
+  const size_t n = sizeof(pattern) / sizeof(pattern[0]);
+  const size_t stride = sizeof(pattern[0]);
+
+  int persisted = 1;
+  for (size_t i = 0; i < n; i++) {
+    if (bar_read32(bar2, i * stride) != pattern[i]) {
+      persisted = 0;
+      break;
+    }
+  }
+  printf("BAR2 pattern %s\n",
+         persisted ? "SURVIVED from a previous run" : "ABSENT; first run?");
+
+  for (size_t i = 0; i < n; i++) {
+    bar_write32(bar2, i * stride, pattern[i]);
+  }
+
+  int readback_ok = 1;
+  for (size_t i = 0; i < n; i++) {
+    if (bar_read32(bar2, i * stride) != pattern[i]) {
+      readback_ok = 0;
+    }
+  }
+  printf("BAR2 write and read-back: %s\n", readback_ok ? "OK" : "MISMATCH");
+}
+
 int main(int argc, char **argv) {
   if (argc != 2) {
     fprintf(stderr, "usage: %s <pci-bdf>   e.g. 0000:00:04.0\n", argv[0]);
@@ -90,6 +137,8 @@ int main(int argc, char **argv) {
   for (size_t off = 0; off < 16; off += 4) {
     printf("  [0x%02zx] = 0x%08x\n", off, bar_read32(bar2, off));
   }
+
+  roundtrip_bar2(bar2);
 
   return 0;
 }
