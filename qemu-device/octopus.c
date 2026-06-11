@@ -11,6 +11,7 @@
 #include "qemu/units.h"
 #include "hw/pci/pci.h"
 #include "hw/pci/pci_device.h"
+#include "hw/pci/msix.h"
 #include "qemu/module.h"
 #include "qom/object.h"
 
@@ -24,9 +25,12 @@ OBJECT_DECLARE_SIMPLE_TYPE(OctopusState, OCTOPUS)
 #define OCTOPUS_REG_MAGIC 0x00
 #define OCTOPUS_REG_VERSION 0x04
 #define OCTOPUS_REG_COUNTER 0x08
+#define OCTOPUS_REG_FIRE 0x10 /* write: raise MSI-X vector 0 */
 
 #define OCTOPUS_MAGIC 0x6d786770 /* "mxgp" */
 #define OCTOPUS_VERSION 0x00000001
+#define OCTOPUS_MSIX_VECTORS 4
+#define OCTOPUS_MSIX_BAR 4
 
 struct OctopusState {
   PCIDevice parent_obj;
@@ -53,7 +57,22 @@ static uint64_t octopus_mmio_read(void *opaque, hwaddr addr, unsigned size) {
 }
 
 static void octopus_mmio_write(void *opaque, hwaddr addr, uint64_t val,
-                               unsigned size) {}
+                               unsigned size) {
+  OctopusState *s = opaque;
+
+  switch (addr) {
+  case OCTOPUS_REG_FIRE:
+    /*
+     * A real device raises a vector because an event happened. Ours raises one
+     * because the guest asked. The written value is ignored. The register's
+     * address is the command itself.
+     */
+    msix_notify(PCI_DEVICE(s), 0);
+    break;
+  default:
+    break;
+  }
+}
 
 static const MemoryRegionOps octopus_mmio_ops = {
     .read = octopus_mmio_read,
@@ -86,6 +105,19 @@ static void octopus_realize(PCIDevice *pdev, Error **errp) {
   pci_register_bar(pdev, 2,
                    PCI_BASE_ADDRESS_SPACE_MEMORY | PCI_BASE_ADDRESS_MEM_TYPE_64,
                    &s->scratch);
+
+  if (msix_init_exclusive_bar(pdev, OCTOPUS_MSIX_VECTORS, OCTOPUS_MSIX_BAR,
+                              errp)) {
+    return;
+  }
+  /*
+   * msix_notify() silently drops any vector not marked in use.
+   * Without this loop the capability shows up in lspci but no
+   * interrupt ever fires.
+   */
+  for (unsigned v = 0; v < OCTOPUS_MSIX_VECTORS; v++) {
+    msix_vector_use(pdev, v);
+  }
 }
 
 static void octopus_class_init(ObjectClass *klass, const void *data) {
