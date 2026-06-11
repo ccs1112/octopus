@@ -1,9 +1,6 @@
 /*
  * octopus synthetic PCIe device for QEMU.
  *
- * Phase 1, E1.1: empty PCIDevice that probes.
- * Subsequent exercises extend this file in place.
- *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
