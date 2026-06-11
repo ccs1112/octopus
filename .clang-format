@@ -1,0 +1,5 @@
+# LLVM base gives the 2-space indent the editor defaults expect.
+# Include sorting must stay off: QEMU requires qemu/osdep.h to be the
+# first include in every .c file, and a sort pass moves it.
+BasedOnStyle: LLVM
+SortIncludes: Never
